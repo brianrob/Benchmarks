@@ -16,7 +16,7 @@ using System.IO;
 
 namespace BenchmarksClient.Workers
 {
-    public class GrpcNativeWorker : IWorker
+    public class GrpcWorker : IWorker
     {
         public string JobLogText { get; set; }
 
