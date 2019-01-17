@@ -37,6 +37,11 @@ namespace BenchmarksClient.Workers
 
         private void InitializeJob()
         {
+            // MORE LOGGING
+            Environment.SetEnvironmentVariable("GRPC_TRACE", "api");
+            Environment.SetEnvironmentVariable("GRPC_VERBOSITY", "debug");
+            Grpc.Core.GrpcEnvironment.SetLogger(new CustomLogger(Log));
+
             _stopped = false;
 
             Debug.Assert(_job.Connections > 0, "There must be more than 0 connections");
@@ -68,77 +73,72 @@ namespace BenchmarksClient.Workers
             {
                 CreateChannels();
             }
-
-            // MORE LOGGING
-            Environment.SetEnvironmentVariable("GRPC_TRACE", "api");
-            Environment.SetEnvironmentVariable("GRPC_VERBOSITY", "debug");
-            Grpc.Core.GrpcEnvironment.SetLogger(new Grpc.Core.Logging.ConsoleLogger());
         }
 
-        //private class CustomLogger : ILogger
-        //{
-        //    private readonly IWorker _worker;
+        private class CustomLogger : ILogger
+        {
+            private readonly Action<string> _logger;
 
-        //    public CustomLogger(IWorker worker)
-        //    {
-        //        _worker = worker;
-        //    }
+            public CustomLogger(Action<string> logger)
+            {
+                _logger = logger;
+            }
 
-        //    public void Debug(string message)
-        //    {
-        //        _worker.Lo
-        //    }
+            public void Debug(string message)
+            {
+                _logger(message);
+            }
 
-        //    public void Debug(string format, params object[] formatArgs)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+            public void Debug(string format, params object[] formatArgs)
+            {
+                _logger("Debug - " + string.Format(format, formatArgs));
+            }
 
-        //    public void Error(string message)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+            public void Error(string message)
+            {
+                throw new NotImplementedException();
+            }
 
-        //    public void Error(string format, params object[] formatArgs)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+            public void Error(string format, params object[] formatArgs)
+            {
+                _logger("Error - " + string.Format(format, formatArgs));
+            }
 
-        //    public void Error(Exception exception, string message)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+            public void Error(Exception exception, string message)
+            {
+                _logger("Error - " + message + " " + exception?.ToString());
+            }
 
-        //    public ILogger ForType<T>()
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+            public ILogger ForType<T>()
+            {
+                return this;
+            }
 
-        //    public void Info(string message)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+            public void Info(string message)
+            {
+                _logger("Info - " + message);
+            }
 
-        //    public void Info(string format, params object[] formatArgs)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+            public void Info(string format, params object[] formatArgs)
+            {
+                _logger("Info - " + string.Format(format, formatArgs));
+            }
 
-        //    public void Warning(string message)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+            public void Warning(string message)
+            {
+                _logger("Warning - " + message);
+            }
 
-        //    public void Warning(string format, params object[] formatArgs)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
+            public void Warning(string format, params object[] formatArgs)
+            {
+                _logger("Warning - " + string.Format(format, formatArgs));
+            }
 
-        //    public void Warning(Exception exception, string message)
-        //    {
-        //        throw new NotImplementedException();
-        //    }
-        //}
+            public void Warning(Exception exception, string message)
+            {
+                _logger("Warning - " + message + " " + exception?.ToString());
+            }
+        }
 
         public async Task StartJobAsync(ClientJob job)
         {
