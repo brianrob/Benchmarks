@@ -354,10 +354,10 @@ namespace BenchmarksClient.Workers
             if (_credentials == null)
             {
                 _credentials = new SslCredentials(
-                    File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "ca.crt")),
+                    File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Certs", "ca.crt")),
                     new KeyCertificatePair(
-                        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "client.crt")),
-                        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "client.key"))));
+                        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Certs", "client.crt")),
+                        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Certs", "client.key"))));
             }
 
             return _credentials;
