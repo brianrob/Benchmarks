@@ -191,7 +191,7 @@ namespace BenchmarksClient.Workers
                 _latencyPerConnection.Add(new List<double>());
                 _latencyAverage.Add((0, 0));
 
-                var channel = new Channel(_job.ServerBenchmarkUri, SslCredentials);
+                var channel = new Channel(_job.ServerBenchmarkUri, GetSslCredentials());
                 _channels.Add(channel);
 
                 channel.ShutdownToken.Register(() =>
@@ -346,12 +346,22 @@ namespace BenchmarksClient.Workers
             Console.WriteLine($"[{time}] {message}");
         }
 
-        public static SslCredentials SslCredentials
-            = new SslCredentials(
-                File.ReadAllText(Path.Combine(CertDir, "ca.crt")),
-                new KeyCertificatePair(
-                    File.ReadAllText(Path.Combine(CertDir, "client.crt")),
-                    File.ReadAllText(Path.Combine(CertDir, "client.key"))));
+        private static SslCredentials _credentials;
+        private static SslCredentials GetSslCredentials()
+        {
+            Log($"Loading credentials from '{AppContext.BaseDirectory}'");
+
+            if (_credentials == null)
+            {
+                _credentials = new SslCredentials(
+                    File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "ca.crt")),
+                    new KeyCertificatePair(
+                        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "client.crt")),
+                        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "client.key"))));
+            }
+
+            return _credentials;
+        }
 
         public static string CertDir = Path.Combine(GetSolutionDirectory(), "src", "BenchmarksClient", "Certs");
 
