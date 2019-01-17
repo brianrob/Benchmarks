@@ -37,6 +37,8 @@ namespace BenchmarksClient.Workers
 
         private void InitializeJob()
         {
+            Log("Initialing gRPC worker");
+
             // MORE LOGGING
             Environment.SetEnvironmentVariable("GRPC_TRACE", "api");
             Environment.SetEnvironmentVariable("GRPC_VERBOSITY", "debug");
