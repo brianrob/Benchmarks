@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using Grpc.Core;
 using Greet;
 using System.IO;
+using Grpc.Core.Logging;
 
 namespace BenchmarksClient.Workers
 {
@@ -73,6 +74,71 @@ namespace BenchmarksClient.Workers
             Environment.SetEnvironmentVariable("GRPC_VERBOSITY", "debug");
             Grpc.Core.GrpcEnvironment.SetLogger(new Grpc.Core.Logging.ConsoleLogger());
         }
+
+        //private class CustomLogger : ILogger
+        //{
+        //    private readonly IWorker _worker;
+
+        //    public CustomLogger(IWorker worker)
+        //    {
+        //        _worker = worker;
+        //    }
+
+        //    public void Debug(string message)
+        //    {
+        //        _worker.Lo
+        //    }
+
+        //    public void Debug(string format, params object[] formatArgs)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public void Error(string message)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public void Error(string format, params object[] formatArgs)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public void Error(Exception exception, string message)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public ILogger ForType<T>()
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public void Info(string message)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public void Info(string format, params object[] formatArgs)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public void Warning(string message)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public void Warning(string format, params object[] formatArgs)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+
+        //    public void Warning(Exception exception, string message)
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+        //}
 
         public async Task StartJobAsync(ClientJob job)
         {
@@ -205,13 +271,20 @@ namespace BenchmarksClient.Workers
             _latencyAverage = new List<(double sum, int count)>(_job.Connections);
 
             _recvCallbacks = new List<IDisposable>(_job.Connections);
+
+            // Channel does not care about scheme
+            var initialUri = new Uri(_job.ServerBenchmarkUri);
+            var resolvedUri = initialUri.Authority;
+
+            Log($"Creating channels to '{resolvedUri}'");
+
             for (var i = 0; i < _job.Connections; i++)
             {
                 _requestsPerConnection.Add(0);
                 _latencyPerConnection.Add(new List<double>());
                 _latencyAverage.Add((0, 0));
 
-                var channel = new Channel(_job.ServerBenchmarkUri, GetSslCredentials());
+                var channel = new Channel(resolvedUri, GetSslCredentials());
                 _channels.Add(channel);
 
                 channel.ShutdownToken.Register(() =>
