@@ -87,22 +87,37 @@ namespace BenchmarksClient.Workers
                 switch (_scenario)
                 {
                     case "Unary":
+                        Log($"Starting {_scenario}");
+
                         for (var i = 0; i < _channels.Count; i++)
                         {
                             var id = i;
                             // kick off a task per channel so they don't wait for other channels when sending "SayHello"
                             _ = Task.Run(async () =>
                             {
-                                var client = new Greeter.GreeterClient(_channels[id]);
-
-                                while (!cts.IsCancellationRequested)
+                                try
                                 {
-                                    var response = await client.SayHelloAsync(new HelloRequest
-                                    {
-                                        Name = "World"
-                                    });
+                                    Log($"{id}: Starting {_scenario}");
 
-                                    ReceivedDateTime(response.Timestamp.ToDateTime(), id);
+                                    var client = new Greeter.GreeterClient(_channels[id]);
+
+                                    while (!cts.IsCancellationRequested)
+                                    {
+                                        Log($"{id}: Sending say hello");
+
+                                        var response = await client.SayHelloAsync(new HelloRequest
+                                        {
+                                            Name = "World"
+                                        });
+
+                                        Log($"{id}: Response is '{response.Message}'");
+
+                                        ReceivedDateTime(response.Timestamp.ToDateTime(), id);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log($"{id}: Error message: {ex.Message}");
                                 }
                             });
                         }
@@ -349,10 +364,10 @@ namespace BenchmarksClient.Workers
         private static SslCredentials _credentials;
         private static SslCredentials GetSslCredentials()
         {
-            Log($"Loading credentials from '{AppContext.BaseDirectory}'");
-
             if (_credentials == null)
             {
+                Log($"Loading credentials from '{AppContext.BaseDirectory}'");
+
                 _credentials = new SslCredentials(
                     File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Certs", "ca.crt")),
                     new KeyCertificatePair(
