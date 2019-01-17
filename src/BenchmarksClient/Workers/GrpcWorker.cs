@@ -67,6 +67,11 @@ namespace BenchmarksClient.Workers
             {
                 CreateChannels();
             }
+
+            // MORE LOGGING
+            Environment.SetEnvironmentVariable("GRPC_TRACE", "api");
+            Environment.SetEnvironmentVariable("GRPC_VERBOSITY", "debug");
+            Grpc.Core.GrpcEnvironment.SetLogger(new Grpc.Core.Logging.ConsoleLogger());
         }
 
         public async Task StartJobAsync(ClientJob job)
