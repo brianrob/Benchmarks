@@ -34,6 +34,7 @@ namespace BenchmarksClient.Workers
         private List<(double sum, int count)> _latencyAverage;
         private double _clientToServerOffset;
         private int _totalRequests;
+        private bool _useTls;
 
         private void InitializeJob()
         {
@@ -59,6 +60,11 @@ namespace BenchmarksClient.Workers
                 }
             }
 
+            if (_job.ClientProperties.TryGetValue("UseTls", out var useTls) && Convert.ToBoolean(useTls))
+            {
+                _useTls = true;
+            }
+
             if (_job.ClientProperties.TryGetValue("Scenario", out var scenario))
             {
                 _scenario = scenario;
@@ -77,6 +83,7 @@ namespace BenchmarksClient.Workers
             }
         }
 
+        #region Logger
         private class CustomLogger : ILogger
         {
             private readonly Action<string> _logger;
@@ -141,6 +148,7 @@ namespace BenchmarksClient.Workers
                 _logger("Warning - " + message + " " + exception?.ToString());
             }
         }
+        #endregion
 
         public async Task StartJobAsync(ClientJob job)
         {
@@ -279,6 +287,7 @@ namespace BenchmarksClient.Workers
             var resolvedUri = initialUri.Authority;
 
             Log($"Creating channels to '{resolvedUri}'");
+            Log($"Channels authenticated with TLS: {_useTls}");
 
             for (var i = 0; i < _job.Connections; i++)
             {
@@ -286,7 +295,9 @@ namespace BenchmarksClient.Workers
                 _latencyPerConnection.Add(new List<double>());
                 _latencyAverage.Add((0, 0));
 
-                var channel = new Channel(resolvedUri, GetSslCredentials());
+                var channelCredentials = _useTls ? GetSslCredentials() : ChannelCredentials.Insecure;
+
+                var channel = new Channel(resolvedUri, channelCredentials);
                 _channels.Add(channel);
 
                 channel.ShutdownToken.Register(() =>
@@ -442,6 +453,7 @@ namespace BenchmarksClient.Workers
         }
 
         private static SslCredentials _credentials;
+
         private static SslCredentials GetSslCredentials()
         {
             if (_credentials == null)
