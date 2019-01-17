@@ -88,7 +88,7 @@ namespace BenchmarksClient.Workers
 
             public void Debug(string message)
             {
-                _logger(message);
+                _logger("Debug - " + message);
             }
 
             public void Debug(string format, params object[] formatArgs)
@@ -98,7 +98,7 @@ namespace BenchmarksClient.Workers
 
             public void Error(string message)
             {
-                throw new NotImplementedException();
+                _logger("Error - " + message);
             }
 
             public void Error(string format, params object[] formatArgs)
