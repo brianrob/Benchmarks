@@ -41,9 +41,9 @@ namespace BenchmarksClient.Workers
             Log("Initialing gRPC worker");
 
             // MORE LOGGING
-            Environment.SetEnvironmentVariable("GRPC_TRACE", "api");
-            Environment.SetEnvironmentVariable("GRPC_VERBOSITY", "debug");
-            Grpc.Core.GrpcEnvironment.SetLogger(new CustomLogger(Log));
+            //Environment.SetEnvironmentVariable("GRPC_TRACE", "api");
+            //Environment.SetEnvironmentVariable("GRPC_VERBOSITY", "debug");
+            //Grpc.Core.GrpcEnvironment.SetLogger(new CustomLogger(Log));
 
             _stopped = false;
 
@@ -176,14 +176,14 @@ namespace BenchmarksClient.Workers
                             // kick off a task per channel so they don't wait for other channels when sending "SayHello"
                             _ = Task.Run(async () =>
                             {
-                                try
+                                Log($"{id}: Starting {_scenario}");
+
+                                while (!cts.IsCancellationRequested)
                                 {
-                                    Log($"{id}: Starting {_scenario}");
-
-                                    var client = new Greeter.GreeterClient(_channels[id]);
-
-                                    while (!cts.IsCancellationRequested)
+                                    try
                                     {
+                                        var client = new Greeter.GreeterClient(_channels[id]);
+
                                         var response = await client.SayHelloAsync(new HelloRequest
                                         {
                                             Name = "World"
@@ -191,10 +191,10 @@ namespace BenchmarksClient.Workers
 
                                         ReceivedDateTime(response.Timestamp.ToDateTime(), id);
                                     }
-                                }
-                                catch (Exception ex)
-                                {
-                                    Log($"{id}: Error message: {ex.Message}");
+                                    catch (Exception ex)
+                                    {
+                                        Log($"{id}: Error message: {ex.Message}");
+                                    }
                                 }
                             });
                         }
