@@ -184,12 +184,12 @@ namespace BenchmarksClient.Workers
                             {
                                 Log($"{id}: Starting {_scenario}");
 
+                                var client = new Greeter.GreeterClient(_channels[id]);
+
                                 while (!cts.IsCancellationRequested)
                                 {
                                     try
                                     {
-                                        var client = new Greeter.GreeterClient(_channels[id]);
-
                                         var start = DateTime.UtcNow;
                                         var response = await client.SayHelloAsync(new HelloRequest
                                         {
