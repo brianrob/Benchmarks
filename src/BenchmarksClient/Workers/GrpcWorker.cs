@@ -167,6 +167,8 @@ namespace BenchmarksClient.Workers
             });
             _workTimer.Restart();
 
+            var callTasks = new List<Task>();
+
             try
             {
                 switch (_scenario)
@@ -178,7 +180,7 @@ namespace BenchmarksClient.Workers
                         {
                             var id = i;
                             // kick off a task per channel so they don't wait for other channels when sending "SayHello"
-                            _ = Task.Run(async () =>
+                            var task = Task.Run(async () =>
                             {
                                 Log($"{id}: Starting {_scenario}");
 
@@ -203,6 +205,8 @@ namespace BenchmarksClient.Workers
 
                                 Log($"{id}: Finished {_scenario}");
                             });
+
+                            callTasks.Add(task);
                         }
 
                         Log($"Finished {_scenario}");
@@ -218,7 +222,13 @@ namespace BenchmarksClient.Workers
                 _job.Error += Environment.NewLine + text;
             }
 
+            Log($"Waiting on duration");
             cts.Token.WaitHandle.WaitOne();
+
+            Log($"Waiting for call tasks to complete");
+            await Task.WhenAll(callTasks);
+
+            Log($"Stopping job");
             await StopJobAsync();
         }
 
