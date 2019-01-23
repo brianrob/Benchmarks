@@ -337,7 +337,7 @@ namespace BenchmarksClient.Workers
 
             _requestsPerConnection[channelId] += 1;
 
-            var latency = start - end;
+            var latency = end - start;
             latency = latency.Add(TimeSpan.FromMilliseconds(_clientToServerOffset));
             if (_detailedLatency)
             {
