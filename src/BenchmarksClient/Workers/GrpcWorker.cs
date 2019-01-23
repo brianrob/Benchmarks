@@ -190,12 +190,14 @@ namespace BenchmarksClient.Workers
                                     {
                                         var client = new Greeter.GreeterClient(_channels[id]);
 
+                                        var start = DateTime.UtcNow;
                                         var response = await client.SayHelloAsync(new HelloRequest
                                         {
                                             Name = "World"
                                         });
+                                        var end = DateTime.UtcNow;
 
-                                        ReceivedDateTime(response.Timestamp.ToDateTime(), id);
+                                        ReceivedDateTime(start, end, id);
                                     }
                                     catch (Exception ex)
                                     {
@@ -326,7 +328,7 @@ namespace BenchmarksClient.Workers
             }
         }
 
-        private void ReceivedDateTime(DateTime dateTime, int channelId)
+        private void ReceivedDateTime(DateTime start, DateTime end, int channelId)
         {
             if (_stopped)
             {
@@ -335,7 +337,7 @@ namespace BenchmarksClient.Workers
 
             _requestsPerConnection[channelId] += 1;
 
-            var latency = DateTime.UtcNow - dateTime;
+            var latency = start - end;
             latency = latency.Add(TimeSpan.FromMilliseconds(_clientToServerOffset));
             if (_detailedLatency)
             {
