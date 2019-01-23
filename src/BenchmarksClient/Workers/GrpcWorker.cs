@@ -161,6 +161,10 @@ namespace BenchmarksClient.Workers
 
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(_job.Duration));
+            cts.Token.Register(() =>
+            {
+                Log("Benchmark duration complete");
+            });
             _workTimer.Restart();
 
             try
