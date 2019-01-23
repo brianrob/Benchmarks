@@ -196,6 +196,8 @@ namespace BenchmarksClient.Workers
                                         Log($"{id}: Error message: {ex.Message}");
                                     }
                                 }
+
+                                Log($"{id}: Finished {_scenario}");
                             });
                         }
 
