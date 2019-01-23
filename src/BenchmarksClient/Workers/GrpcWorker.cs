@@ -184,14 +184,10 @@ namespace BenchmarksClient.Workers
 
                                     while (!cts.IsCancellationRequested)
                                     {
-                                        Log($"{id}: Sending say hello");
-
                                         var response = await client.SayHelloAsync(new HelloRequest
                                         {
                                             Name = "World"
                                         });
-
-                                        Log($"{id}: Response is '{response.Message}'");
 
                                         ReceivedDateTime(response.Timestamp.ToDateTime(), id);
                                     }
@@ -202,6 +198,8 @@ namespace BenchmarksClient.Workers
                                 }
                             });
                         }
+
+                        Log($"Finished {_scenario}");
                         break;
                     default:
                         throw new Exception($"Scenario '{_scenario}' is not a known scenario.");
