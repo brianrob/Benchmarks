@@ -5,7 +5,7 @@
       "BranchOrCommit": "master",
       "DockerFile": "frameworks/CSharp/aspnetcore-mono/aspcore-mono-jit.dockerfile",
       "DockerImageName": "aspnetcore-mono-jit",
-      "DockerContextDirectory": "frameworks/CSharp/aspnetcore-mono-jit/"
+      "DockerContextDirectory": "frameworks/CSharp/aspnetcore-mono/"
     },
     "Client": "Wrk",
     "Port": 8080,
