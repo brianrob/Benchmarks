@@ -31,8 +31,8 @@
     "Path": "/fortunes",
     "PresetHeaders": "Html",
     "Source": {
-      "DockerFile": "frameworks/CSharp/aspnetcore-mono/aspcore-mono-pg.dockerfile",
-      "DockerImageName": "aspnetcore_mono_pg"
+      "DockerFile": "frameworks/CSharp/aspnetcore-mono/aspcore-mono-aot-llvm-pg.dockerfile",
+      "DockerImageName": "aspnetcore_mono_aot_llvm_pg"
     }
   }
 }
