@@ -32,6 +32,7 @@
     "PresetHeaders": "Html",
     "Source": {
       "DockerFile": "frameworks/CSharp/aspnetcore-mono/aspcore-mono-fullaot-pg.dockerfile",
+      "BranchOrCommit" : "debug_logging",
       "DockerImageName": "aspnetcore_mono_fullaot_pg"
     }
   }
