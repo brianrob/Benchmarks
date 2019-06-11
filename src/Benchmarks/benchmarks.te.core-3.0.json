@@ -28,7 +28,7 @@
     "PresetHeaders": "Json"
   },
   "FortunesPostgreSql-AspNetCore": {
-    "Path": "/fortunes",
+    "Path": "/fortunes/raw",
     "PresetHeaders": "Html",
     "Source": {
       "DockerFile": "frameworks/CSharp/aspnetcore-mono/aspcore-core3.0-pg.dockerfile",
