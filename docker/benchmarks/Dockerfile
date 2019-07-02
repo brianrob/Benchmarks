@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.1-sdk
+FROM mcr.microsoft.com/dotnet/core-nightly/sdk:3.0.100-preview7
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -16,7 +16,7 @@ RUN apt-get update \
         cgroup-bin \
 # Perfview dependencies
         zip \
-        linux-tools \
+        linux-perf \
         lttng-tools \
         lttng-modules-dkms \
         liblttng-ust-dev \
@@ -32,11 +32,12 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Make perf visible for perfcollect
-RUN cp /usr/bin/perf_4.9 /usr/bin/perf
+RUN cp /usr/bin/perf_4.19 /usr/bin/perf
 
 # downloading perfcollect
 #ADD https://raw.githubusercontent.com/dotnet/corefx-tools/master/src/performance/perfcollect/perfcollect /usr/bin/perfcollect
 ADD https://gist.githubusercontent.com/sebastienros/6c28f099d579e37df4000fe457f277d6/raw/b3a585225053a2009ec4c7a8aff68d2c3359c61d/perfcollect /usr/bin/perfcollect
+
 RUN chmod +x /usr/bin/perfcollect
 
 # Build and install h2load
@@ -76,6 +77,25 @@ RUN cd /tmp \
     && wget https://github.com/codesenberg/bombardier/releases/download/v1.2.3/bombardier-linux-amd64 -O bombardier \
     && chmod +x bombardier \
     && cp bombardier /usr/local/bin
+
+# Build and install wrk2
+RUN if [ "$(dpkg --print-architecture)" != "arm64" ]; then cd /tmp \
+    && git clone https://github.com/giltene/wrk2.git wrk2 \
+    && cd wrk2 \
+    && make \
+    && mv wrk wrk2 \
+    && cp wrk2 /usr/local/bin \
+    && cd .. \
+    && rm -rf wrk2.zip; fi
+
+# Install openssl 1.1.1
+RUN cd /tmp \
+    && git clone https://github.com/openssl/openssl.git --branch OpenSSL_1_1_1-stable \
+    && cd openssl \
+    && ./config \
+    && make \
+    && make install \
+    && export LD_LIBRARY_PATH=/usr/local/lib
 
 WORKDIR /benchmarks
 

@@ -33,6 +33,9 @@
       "PipelineDepth": 0
     }
   },
+  "EndpointPlaintext": {
+    "Path": "/ep-plaintext"
+  },
   "MvcPlaintext": {
     "Path": "/mvc/plaintext"
   },
@@ -70,6 +73,13 @@
     },
     "Headers": {
       "Connection": "close"
+    }
+  },
+  "PlaintextNonPipelinedLogging": {
+    "Path": "/plaintext",
+    "ClientProperties": {
+      "ScriptName": "",
+      "PipelineDepth": 0
     }
   }
 }

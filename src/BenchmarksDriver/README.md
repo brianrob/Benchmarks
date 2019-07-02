@@ -18,18 +18,19 @@ Options:
   -i|--iterations        The number of iterations.
   -x|--exclude           The number of best and worst jobs to skip.  
   --database             The type of database to run the benchmarks with (PostgreSql, SqlServer or MySql). Default is None.
-  -cf|--connectionFilter Assembly-qualified name of the ConnectionFilter
   --kestrelThreadCount   Maps to KestrelServerOptions.ThreadCount.
   -n|--scenario          Benchmark scenario to run
   -m|--scheme            Scheme (http, https, h2, h2c). Default is http.
   -w|--webHost           WebHost (e.g., KestrelLibuv, KestrelSockets, HttpSys). Default is KestrelSockets.
   --aspnet               ASP.NET Core packages version (Current, Latest, or custom value). Current is the latest public version (2.0.*), Latest is the currently developped one. Default is Latest (2.1-*).
   --dotnet               .NET Core Runtime version (Current, Latest, Edge or custom value). Current is the latest public version, Latest is the one enlisted, Edge is the latest available. Default is Latest (2.1.0-*).
-  -a|--arg                Argument to pass to the application. (e.g., --arg --raw=true --arg "single_value")
+  -a|--arg               Argument to pass to the application. (e.g., --arg --raw=true --arg "single_value")
   --no-arguments         Removes any predefined arguments from the server application command line.
   --port                 The port used to request the benchmarked application. Default is 5000.
   --ready-text           The text that is displayed when the application is ready to accept requests. (e.g., "Application started.")
   -r|--repository        Git repository containing the project to test.
+  -b|--branch            Git branch to checkout.
+  -h|--hash              Git hash to checkout.
   --projectFile          Relative path of the project to test in the repository. (e.g., "src/Benchmarks/Benchmarks.csproj")
   --init-submodules      When set will init submodules on the repository.
   -df|--docker-file      File path of the Docker script. (e.g, "frameworks/CSharp/aspnetcore/aspcore.dockerfile")
@@ -37,8 +38,9 @@ Options:
   -di|--docker-image     The name of the Docker image to create. If not net one will be created from the Docker file name. (e.g., "aspnetcore21")
   --runtime-store        Runs the benchmarks using the runtime store (2.0) or shared aspnet framework (2.1).
   --outputFile           Output file attachment. Format is 'path[;destination]'. FilePath can be a URL. e.g., "--outputFile c:\build\Microsoft.AspNetCore.Mvc.dll", "--outputFile c:\files\samples\picture.png;wwwroot\picture.png"
+  --output-archive       Output archive attachment. Format is 'path[;destination]'. FilePath can be a URL. e.g., "--output-archive c:\build\Microsoft.AspNetCore.Mvc.zip\", "--output-archive http://raw/github.com/pictures.zip;wwwroot\pictures"
   -src|--source          Local folder containing the project to test.
-  --client-threads        Number of threads used by client. Default is 32.
+  --client-threads       Number of threads used by client. Default is 32.
   --timeout              Timeout for client connections. e.g., 2s
   --connections          Number of connections used by client. Default is 256.
   --duration             Duration of test in seconds. Default is 15.
@@ -53,6 +55,8 @@ Options:
   --querystring          Querystring to add to the requests. (e.g., "?page=1")
   -j|--jobs              The path or url to the jobs definition.
   --collect-trace        Collect a PerfView trace. Optionally set custom arguments. e.g., BufferSize=256;InMemoryCircularBuffer
+  --collect-startup      Includes the startup phase in the trace.
+  --collect-counters     Collect event counters.
   --trace-output         Can be a file prefix (app will add *.DATE.RPS*.etl.zip) , or a specific name (end in *.etl.zip) and no DATE.RPS* will be added e.g. --trace-output c:\traces\myTrace
   --trace-arguments      Arguments used when collecting a PerfView trace, e.g., Providers=.NETTasks:0:0 (Defaults are BufferSizeMB=1024;CircularMB=1024 on Windows and -collectsec 10 on Linux)
   --enable-eventpipe     Enables EventPipe perf collection.
@@ -80,7 +84,6 @@ Options:
   --server-timeout       Timeout for server jobs. e.g., 00:05:00
   --framework            TFM to use if automatic resolution based runtime should not be used. e.g., netcoreapp2.1
   --sdk                  SDK version to use
-  -nupkg|--nuget-package URL or local path of a runtime file. e.g., "--runtime-file runtime.win-x64.Microsoft.AspNetCore.App.3.0.0-preview-19057-23.nupkg"
   --initialize           A script to run before the application starts, e.g. "du", "/usr/bin/env bash dotnet-install.sh"
   --clean                A script to run after the application has stopped, e.g. "du", "/usr/bin/env bash dotnet-install.sh"
   -mem|--memory          The amount of memory available for the process, e.g. -mem 64mb, -mem 1gb. Supported units are (gb, mb, kb, b or none for bytes).

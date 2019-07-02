@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -13,8 +14,6 @@ namespace Benchmarks.ServerJob
     public class ServerJob : IIdentifiable
     {
         public int Id { get; set; }
-
-        public string ConnectionFilter { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
         public Hardware? Hardware { get; set; }
@@ -36,7 +35,8 @@ namespace Benchmarks.ServerJob
         public bool IsConsoleApp { get; set; }
         public string AspNetCoreVersion { get; set; } = "Latest";
         public string RuntimeVersion { get; set; } = "Latest";
-        public string SdkVersion { get; set; }
+        public string SdkVersion { get; set; } = "Latest";
+        public bool NoGlobalJson { get; set; }
         public Database Database { get; set; } = Database.None;
         
         // Delay from the process started to the console receiving "Application started"
@@ -105,6 +105,7 @@ namespace Benchmarks.ServerJob
 
         public bool Collect { get; set; }
         public bool CollectStartup { get; set; }
+        public bool CollectCounters { get; set; }
         public string CollectArguments { get; set; }
         public string PerfViewTraceFile { get; set; }
         public string BasePath { get; set; }
@@ -119,5 +120,6 @@ namespace Benchmarks.ServerJob
         public string BeforeScript { get; set; }
         public string AfterScript { get; set; }
         public ulong MemoryLimitInBytes { get; set; }
+        public ConcurrentDictionary<string, ConcurrentQueue<string>> Counters { get; set; } = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
     }
 }

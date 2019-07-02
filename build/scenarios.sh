@@ -16,12 +16,6 @@ then
     exit 1
 fi
 
-if [ -z "$PLAINTEXT_LIBUV_THREAD_COUNT" ]
-then
-    echo "\$PLAINTEXT_LIBUV_THREAD_COUNT is not set"
-    exit 1
-fi
-
 if [ -z "$CPU_COUNT" ]
 then
     echo "\$CPU_COUNT is not set"
@@ -45,6 +39,9 @@ routingJobs="-j https://raw.githubusercontent.com/aspnet/AspNetCore/master/src/R
 basicApiJobs="--database MySql --jobs https://raw.githubusercontent.com/aspnet/AspNetCore/master/src/Mvc/benchmarkapps/BasicApi/benchmarks.json --duration 60"
 basicViewsJobs="--database MySql --jobs https://raw.githubusercontent.com/aspnet/AspNetCore/master/src/Mvc/benchmarkapps/BasicViews/benchmarks.json --duration 60"
 http2Jobs="--clientName H2Load -p Streams=70 --headers None --connections $CPU_COUNT --clientThreads $CPU_COUNT"
+grpcNativeJobs="-j https://raw.githubusercontent.com/grpc/grpc-dotnet/master/perf/benchmarkapps/NativeServer/grpc-native.json"
+grpcManagedJobs="-j https://raw.githubusercontent.com/grpc/grpc-dotnet/master/perf/benchmarkapps/BenchmarkServer/grpc-aspnetcore.json"
+orchardJobs="-j $ROOT/src/Benchmarks/benchmarks.orchard.json"
 
 trend="--description Trend/Latest"
 plaintextLibuvThreadCount="--kestrelThreadCount $PLAINTEXT_LIBUV_THREAD_COUNT"
@@ -53,41 +50,38 @@ routingBenchmarks="-r AspNetCore@master --projectFile src/Http/Routing/perf/Micr
 
 jobs=(
   # Plaintext
-  "-n PlaintextPlatform --webHost KestrelLibuv $trend $plaintextPlatformJobs"
   "-n PlaintextPlatform --webHost KestrelSockets $trend $plaintextPlatformJobs"
-  "-n Plaintext --webHost KestrelLibuv $trend $plaintextLibuvThreadCount $plaintextJobs"
   "-n Plaintext --webHost KestrelSockets $trend $plaintextJobs -i 3" 
   "-n PlaintextNonPipelined --webHost KestrelSockets $trend $plaintextJobs" 
   "-n MvcPlaintext --webHost KestrelSockets $trend $plaintextJobs -i 3" 
-  "-n MvcPlaintext --webHost KestrelLibuv $trend $plaintextJobs" 
+  "-n EndpointPlaintext --webHost KestrelSockets $trend $plaintextJobs -i 3" 
   "-n Plaintext --webHost HttpSys $trend $plaintextJobs --windows-only" 
-  "-n Plaintext --webHost KestrelSockets -cf Benchmarks.PassthroughConnectionFilter $trend $plaintextJobs" 
   "-n StaticFiles --webHost Kestrelsockets --path plaintext $trend $plaintextJobs -i 3" 
-  "-n JsonPlatform --webHost KestrelSockets $trend $jsonPlatformJobs" 
-  "-n JsonPlatform --webHost KestrelLibuv $trend $jsonPlatformJobs" 
-  "-n Json --webHost KestrelSockets $trend $jsonJobs" 
-  "-n Json --webHost KestrelLibuv $trend $jsonJobs"
-  "-n Jil --webHost KestrelSockets $trend $jsonJobs"
-  "-n MvcJson --webHost KestrelSockets $trend $jsonJobs" 
-  "-n MvcJson --webHost KestrelLibuv $trend $jsonJobs" 
-  "-n MvcJil --webHost KestrelSockets $trend $jsonJobs" 
   "-n PlaintextRouting --webHost KestrelSockets $trend $routingJobs" 
   "-n PlaintextDispatcher --webHost KestrelSockets $trend $routingJobs" 
 
+  # Json
+  "-n JsonPlatform --webHost KestrelSockets $trend $jsonPlatformJobs"
+  "-n Json --webHost KestrelSockets $trend $jsonJobs"
+  "-n MvcJson --webHost KestrelSockets $trend $jsonJobs"
+  "-n MvcJsonNet --webHost KestrelSockets $trend $jsonJobs"
+  "-n MvcJson2k --webHost KestrelSockets $trend $jsonJobs"
+  "-n MvcJsonNet2k --webHost KestrelSockets $trend $jsonJobs"
+  "-n MvcJsonInput2k --webHost KestrelSockets $trend $jsonJobs"
+  "-n MvcJsonNetInput2k --webHost KestrelSockets $trend $jsonJobs"
+
   # Https
   "-n Plaintext -m https --webHost KestrelSockets $trend $plaintextJobs"
-  "-n Plaintext -m https --webHost KestrelLibuv $trend $plaintextJobs"
   "-n Plaintext -m https --webHost HttpSys $trend $plaintextJobs --windows-only"
   "-n Json -m https --webHost KestrelSockets $trend $jsonJobs"
-  "-n Json -m https --webHost KestrelLibuv $trend $jsonJobs"
   "-n Json -m https --webHost HttpSys $trend $jsonJobs --windows-only"
   "-n PlaintextNonPipelined -m https --webHost KestrelSockets $trend $plaintextJobs"
   
   # Http2
   "-n PlaintextNonPipelined --webHost KestrelSockets $trend $plaintextJobs $http2Jobs -m h2"
-  "-n PlaintextNonPipelined --webHost KestrelSockets $trend $plaintextJobs $http2Jobs -m h2c"
+  "-n PlaintextNonPipelined --webHost KestrelSockets $trend $plaintextJobs $http2Jobs -m h2c --no-startup-latency" # no startup time as h2c is not supported by HttpClient
   "-n Json --webHost KestrelSockets $trend $jsonJobs $http2Jobs -m h2"
-  "-n Json --webHost KestrelSockets $trend $jsonJobs $http2Jobs -m h2c"
+  "-n Json --webHost KestrelSockets $trend $jsonJobs $http2Jobs -m h2c --no-startup-latency" # no startup time as h2c is not supported by HttpClient
 
   # Caching
   "-n MemoryCachePlaintext --webHost KestrelSockets $trend $plaintextJobs"
@@ -100,7 +94,7 @@ jobs=(
   # Database SingleQuery
   "-n DbSingleQueryRaw --webHost KestrelSockets $trend $jsonJobs --database PostgreSql"
   "-n DbSingleQueryDapper --webHost KestrelSockets $trend $jsonJobs --database PostgreSql"
-  "-n DbSingleQueryMongoDb --webHost KestrelSockets $trend $jsonJobs --database MongoDb"
+  #"-n DbSingleQueryMongoDb --webHost KestrelSockets $trend $jsonJobs --database MongoDb"
   "-n DbSingleQueryEf --webHost KestrelSockets $trend $jsonJobs --database PostgreSql"
   "-n MvcDbSingleQueryRaw --webHost KestrelSockets $trend $jsonJobs --database PostgreSql"
   "-n MvcDbSingleQueryDapper --webHost KestrelSockets $trend $jsonJobs --database PostgreSql"
@@ -109,7 +103,7 @@ jobs=(
   # Database MultiQuery
   "-n DbMultiQueryRaw --webHost KestrelSockets $trend $multiQueryJobs --database PostgreSql"
   "-n DbMultiQueryDapper --webHost KestrelSockets $trend $multiQueryJobs --database PostgreSql"
-  "-n DbMultiQueryMongoDb --webHost KestrelSockets $trend $multiQueryJobs --database MongoDb"
+  #"-n DbMultiQueryMongoDb --webHost KestrelSockets $trend $multiQueryJobs --database MongoDb"
   "-n DbMultiQueryEf --webHost KestrelSockets $trend $multiQueryJobs --database PostgreSql"
   "-n MvcDbMultiQueryRaw --webHost KestrelSockets $trend $multiQueryJobs --database PostgreSql"
   "-n MvcDbMultiQueryDapper --webHost KestrelSockets $trend $multiQueryJobs --database PostgreSql"
@@ -126,7 +120,7 @@ jobs=(
   # Database Fortunes
   "-n DbFortunesRaw --webHost KestrelSockets $trend $htmlJobs --database PostgreSql"
   "-n DbFortunesDapper --webHost KestrelSockets $trend $htmlJobs --database PostgreSql"
-  "-n DbFortunesMongoDb --webHost KestrelSockets $trend $htmlJobs --database MongoDb"
+  #"-n DbFortunesMongoDb --webHost KestrelSockets $trend $htmlJobs --database MongoDb"
   "-n DbFortunesEf --webHost KestrelSockets $trend $htmlJobs --database PostgreSql"
   "-n MvcDbFortunesRaw --webHost KestrelSockets $trend $htmlJobs --database PostgreSql"
   "-n MvcDbFortunesDapper --webHost KestrelSockets $trend $htmlJobs --database PostgreSql"
@@ -180,8 +174,16 @@ jobs=(
   # Connections
   "-n ConnectionClose --webHost KestrelSockets $trend $plaintextJobs --warmup 2 --duration 5" 
   "-n ConnectionClose --webHost KestrelSockets $trend $plaintextJobs --warmup 2 --duration 5 -m https"
-  "-n ConnectionClose --webHost KestrelLibuv $trend $plaintextJobs --warmup 2 --duration 5" 
-  "-n ConnectionClose --webHost KestrelLibuv $trend $plaintextJobs --warmup 2 --duration 5 -m https"
+
+  # GRPC
+  "-n GrpcUnaryAspNetCore --webHost KestrelSockets $trend $grpcManagedJobs --connections 128 --warmup 5"
+  "-n GrpcUnaryNative --webHost KestrelSockets $trend $grpcNativeJobs --connections 128 --warmup 5"
+
+  # Logging
+  "-n PlaintextNonPipelinedLogging --env ASPNETCORE_LogLevel=Warning $trend $plaintextJobs -i 3" 
+
+  # Orchard
+  "-n OrchardBlog $trend $orchardJobs --output-archive https://raw.githubusercontent.com/aspnet/Benchmarks/master/resources/Orchard/App_Data_Blog.zip;App_Data" 
 )
 
 # build driver
@@ -193,7 +195,7 @@ do
     for job in "${jobs[@]}"
     do
         echo "New job  on '$s': $job"
-        dotnet $ROOT/.build/BenchmarksDriver/BenchmarksDriver.dll -s $s -c $BENCHMARKS_CLIENT $job --session $SESSION -q "$BENCHMARKS_SQL" $BENCHMARKS_ARGS --sdk latest
+        dotnet $ROOT/.build/BenchmarksDriver/BenchmarksDriver.dll -s $s -c $BENCHMARKS_CLIENT $job --session $SESSION -q "$BENCHMARKS_SQL" $BENCHMARKS_ARGS --sdk latest --self-contained --runtimeversion "3.0.0-*" --collect-counters
         # error code in $?
     done
 done

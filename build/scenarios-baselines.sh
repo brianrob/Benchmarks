@@ -16,12 +16,6 @@ then
     exit 1
 fi
 
-if [ -z "$PLAINTEXT_LIBUV_THREAD_COUNT" ]
-then
-    echo "\$PLAINTEXT_LIBUV_THREAD_COUNT is not set"
-    exit 1
-fi
-
 if [ -z "$CPU_COUNT" ]
 then
     echo "\$CPU_COUNT is not set"
@@ -51,10 +45,7 @@ baselines=(
   "--description Baseline22Servicing --aspnetCoreVersion 2.2.* --runtimeVersion 2.2.*"
 
   # Current dev, running close to other baselines, with same repeat parameters
-  "--description Baseline --aspnetCoreVersion Latest --runtimeVersion Latest"
-
-  # Stable 2.2, Tiered Compilation on
-  "--description Baseline22TC --aspnetCoreVersion 2.2 --runtimeVersion 2.2 --tiered-compilation"
+  "--description Baseline --aspnetCoreVersion Latest --runtimeVersion 3.0.0-*"
 
 )
 
@@ -87,7 +78,7 @@ do
         for baseline in "${baselines[@]}"
         do
             echo "New job  on '$s': $job"
-            dotnet $ROOT/.build/BenchmarksDriver/BenchmarksDriver.dll -s $s -c $BENCHMARKS_CLIENT $job $baseline -i 1 --duration 30 --warmup 5 --quiet --session $SESSION -q "$BENCHMARKS_SQL" --table AspNetBaselines $BENCHMARKS_ARGS --sdk latest
+            dotnet $ROOT/.build/BenchmarksDriver/BenchmarksDriver.dll -s $s -c $BENCHMARKS_CLIENT $job $baseline -i 1 --duration 30 --warmup 5 --quiet --session $SESSION -q "$BENCHMARKS_SQL" --table AspNetBaselines $BENCHMARKS_ARGS  --sdk latest --self-contained
             # error code in $?
         done
     done

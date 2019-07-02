@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="$(DapperVersion)" />
-    <PackageReference Include="Jil" Version="$(JilVersion)" />
     <PackageReference Include="MongoDB.Driver" Version="$(MongoDbVersion)" />
     
     <!-- We need to be able to reference a specific Pipelines version without having to change aspnet or netcore runtimes -->
@@ -65,19 +64,17 @@
 
     <!--<PackageReference Include="Microsoft.AspNetCore.Server.IntegrationTesting.IIS" Version="$(MicrosoftAspNetCoreAppPackageVersion)" />-->
 
-    <FrameworkReference Update="Microsoft.AspNetCore.App" 
-                        RuntimeFrameworkVersion="$(MicrosoftAspNetCoreAppPackageVersion)" 
-                        />
+    <FrameworkReference Update="Microsoft.AspNetCore.App" RuntimeFrameworkVersion="$(MicrosoftAspNetCoreAppPackageVersion)" />
 
-    <FrameworkReference Update="Microsoft.NETCore.App"
-                        RuntimeFrameworkVersion="$(MicrosoftNETCoreAppPackageVersion)"
-                        />
+    <FrameworkReference Update="Microsoft.NETCore.App" RuntimeFrameworkVersion="$(MicrosoftNETCoreAppPackageVersion)" />
 
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(NpgsqlEntityFrameworkCorePostgreSQLVersion22)" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="$(PomeloEntityFrameworkCoreMySqlVersion22)" />
-
-    <!-- In netcoreapp3.0 the EF package is not part of the .App package anymore -->
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(NpgsqlEntityFrameworkCorePostgreSQLVersion30)" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(MicrosoftEntityFrameworkCoreSqlServerVersion30)" />
+
+    <!-- The EF provider doesn't handle 3.0
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="$(PomeloEntityFrameworkCoreMySqlVersion30)" />
+    -->
+
   </ItemGroup>
 
 
